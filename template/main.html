@@ -1,0 +1,149 @@
+<html>
+ <head>
+    <title>Panjangin (makerotin)</title>
+    <script type="text/javascript" language="javascript" src="http://jquery-ui.googlecode.com/svn/trunk/jquery-1.4.2.js"></script>
+		<script type="text/javascript" language="javascript" src="http://jquery-ui.googlecode.com/svn/trunk/ui/jquery.ui.core.js"></script>
+		<script type="text/javascript" language="javascript" src="http://jquery-ui.googlecode.com/svn/trunk/ui/jquery.effects.core.js"></script>
+		<script type="text/javascript" language="javascript" src="http://jquery-ui.googlecode.com/svn/trunk/ui/jquery.effects.highlight.js"></script>
+		
+		<!-- <script type="text/javascript" language="javascript" src="/static/jquery.js"></script> -->
+ 
+<script type="text/javascript">
+ $(document).ready(function(){
+    $("#frmUrl").submit(function(e){
+        e.preventDefault();
+        $.ajax({
+						 type: "POST",
+						 url: "/api",
+						 data: {"url":this.url.value},
+						 dataType: "json",
+						 success: function(data){
+							 if (typeof data.error == 'undefined')
+							 {
+								 $(".item").css({"background-color":"#FFFFFF"});
+								 
+								 if ( data.exists == true && $("#" + data.code).length > 0 )
+								 {
+									$("#" + data.code).css({"background-color":"#FAF3E3"});
+								 }
+								 else
+								 {
+									var rv = '<div class="original">' + data.orig_url + "</div>" +
+									 "<div><a href=\"" + data.gen_url + "\" target=\"_blank\">" + data.gen_url + "</a></div>";
+									$("#url-histories").prepend('<div id="' + data.code + '" class="item">' + rv + "</div>");
+									$("#" + data.code).effect("highlight",{},3000);
+								 }
+							 }
+							 else
+							 {
+                alert(data.error);
+							 }
+						 }
+				});
+    });
+ });
+ 
+ function showStat(code){
+  $.ajax({
+   url:"/stat?id=" + code,
+   dataType: "json",
+   success: function(data){
+	if(typeof data.error == 'undefined'){
+	 
+	 if($("#stats-" + code).length){
+	  $("#stats-" + code).html(data.stats);
+	 }else{
+	  var div = "<div id=\"stats-" + code + "\" class=\"small\">" + data.stats + "</div>";
+	  $("#" + data.code).append(div);
+	 }
+	}else{
+	 alert(data.error);
+	}
+   }
+  })
+ }
+ 
+</script>
+
+
+<style type="text/css">
+ *{
+	font-family: "Lucida Grande","Georgia","Arial";
+ }
+ a{
+	font-size: 15px;
+ }
+ a:visited{
+	color: blue;
+ }
+ #url-histories div.item{
+	 padding: 17px 2px 0px 25px;
+	 border-bottom: 1px solid #44A555;
+ }
+ #url-histories div.original{
+	 font-size: 12px;
+	 color: grey;
+ }
+ #form-main{
+	margin-left: 17px;
+	margin-top: 21px;
+ }
+ input[type=textbox]{
+	font-size: 20px;
+ }
+ .hits{
+  font-size: 10px;
+  font-weight: bold;
+ }
+ .small{
+  font-size: 10px;
+  text-decoration: none;
+ }
+</style>
+
+</head>
+ <body>
+    
+ <div id="form-main">
+    <form id="frmUrl" name="frmUrl" method="POST">
+    
+        <label for="url">Url please:</label><br />
+        <input type="textbox" name="url" value="" style="width: 90%;" /><br />
+        <br />
+        <input type="submit" value="panjangin please" />
+        
+    </form>
+ </div>
+ 
+ <div id="url-histories">
+  {% for url in user_urls %}
+  
+   <div id="{{ url.code }}" class="item">
+	<div><a href="{{ url.gen_url }}" target=\"_blank\">{{ url.gen_url }}</a></div>
+	<div class="original">{{ url.orig_url }}</div>
+	{% if url.hits_count %}
+	<div class="hits">{{ url.hits_str }} | <a class="small" href="javascript:showStat('{{ url.code }}');">statistic</a></div>
+	{% endif %}
+   </div>
+   
+  {% endfor %}
+ </div>
+  
+	<div style="margin-top: 100px; text-align: center; color: grey; font-size: 11px;">
+	 <p>
+		<a href="http://panjang.in">www.panjang.in</a><br />
+		&nbsp;Copyright (C) 2012 Anlab Software<br />
+		Powered by<br /><img src="http://t1.gstatic.com/images?q=tbn:rIJpSVYL8bpjeM" />
+	 </p>
+	</div>
+	<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-9507515-2");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+ </body>
+</html>
